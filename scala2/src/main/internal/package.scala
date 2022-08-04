@@ -92,16 +92,13 @@ package object internal {
     @nowarn("cat=unused")
     @scala.annotation.tailrec
     private def extractPath(in: Tree, out: Vector[String]): Either[String, Tree] = in match {
-      case Function(_, expr) =>
-        println("start - case Function(_, expr)")
-        extractPath(expr, out) // drop (argName) =>
+      case Function(_, expr) => extractPath(expr, out) // drop (argName) =>
       case Select(expr, TermName(field)) =>
         if (expr.tpe.dealias <:< typeOf[Option[Any]] && field == "get")
           extractPath(expr, out) // skip .get for Options, go deeper
         else
           extractPath(expr, field +: out) // extract .field
       case Ident(TermName(_)) =>
-        println("end - Ident(TermName(_))")
         Right(q"${out.mkString(".")}") // drop argName from before .field
 
       case _ => Left(s"Path ${showRaw(in)} is not in format _.field1.field2")
