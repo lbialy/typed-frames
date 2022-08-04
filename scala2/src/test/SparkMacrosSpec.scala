@@ -63,10 +63,9 @@ class SparkMacrosSpec extends AnyFlatSpec with Matchers {
 
   it should "handle nested columns" in {
     val $userCols: ColumnNames[User] = $cols[User]
-    val $spouseCols: ColumnNames[Spouse] = $cols[Spouse]
     val df: DataFrame = spark.createDataFrame(users)
 
-    val spouseFirstNames = df.select($userCols(_.spouse)($spouseCols.str(_.first_name))).as[String].collect()
+    val spouseFirstNames = df.select($userCols(_.spouse.get.first_name)).as[String].collect()
     spouseFirstNames should contain theSameElementsAs List(null, "Poppea", null)
   }
 
